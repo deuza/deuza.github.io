@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>deuza — hacktivist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: #000;
+  color: #00ff41;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+canvas#matrix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.container {
+  position: relative;
+  z-index: 10;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 4rem 2rem 6rem;
+}
+
+header { margin-bottom: 4rem; animation: fadeIn 0.8s ease both; }
+
+.prompt {
+  font-size: 11px;
+  color: #1a6632;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.1em;
+}
+.prompt .dollar { color: #00ff41; }
+
+h1 {
+  font-size: clamp(52px, 11vw, 90px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: #00ff41;
+  text-shadow: 0 0 20px rgba(0,255,65,0.5), 0 0 60px rgba(0,255,65,0.15);
+  display: inline-block;
+}
+
+h1::after {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 0.8em;
+  background: #00ff41;
+  margin-left: 6px;
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
+  box-shadow: 0 0 8px #00ff41;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
+.tagline {
+  font-size: 13px;
+  color: #1a8040;
+  margin-top: 1rem;
+  line-height: 1.9;
+}
+.tagline .hl { color: #00ff41; }
+
+section {
+  margin-bottom: 3rem;
+  animation: fadeIn 0.6s ease both;
+}
+section:nth-child(2) { animation-delay: 0.1s; }
+section:nth-child(3) { animation-delay: 0.2s; }
+section:nth-child(4) { animation-delay: 0.3s; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.sec-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #1a6632;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sec-label::before { content: '//'; color: #00ff41; }
+.sec-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(0,255,65,0.12);
+}
+
+.about-text {
+  color: #1a9948;
+  line-height: 1.95;
+  max-width: 640px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 1.25rem;
+}
+
+.tag {
+  font-size: 11px;
+  padding: 3px 11px;
+  border: 1px solid rgba(0,255,65,0.2);
+  border-radius: 2px;
+  color: #1a8040;
+  transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+  letter-spacing: 0.04em;
+}
+.tag:hover {
+  border-color: #00ff41;
+  color: #00ff41;
+  box-shadow: 0 0 8px rgba(0,255,65,0.3);
+}
+
+.orgs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.orgs a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid rgba(0,255,65,0.15);
+  border-radius: 3px;
+  padding: 14px 18px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.orgs a:hover {
+  border-color: rgba(0,255,65,0.5);
+  box-shadow: 0 0 12px rgba(0,255,65,0.15);
+}
+.orgs a img {
+  width: 220px;
+  height: 110px;
+  object-fit: contain;
+  display: block;
+}
+
+.gpg-block {
+  background: rgba(0,255,65,0.03);
+  border: 1px solid rgba(0,255,65,0.2);
+  border-left: 2px solid #00ff41;
+  border-radius: 3px;
+  padding: 18px 22px;
+}
+.gpg-block .name {
+  font-size: 13px;
+  color: #00ff41;
+  margin-bottom: 6px;
+}
+.gpg-block .email {
+  color: #1a9948;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.gpg-block .email:hover { color: #00ff41; }
+.fp-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #1a6632;
+  margin-bottom: 4px;
+  margin-top: 10px;
+}
+.fingerprint {
+  font-size: 12px;
+  color: #1a8040;
+  letter-spacing: 0.08em;
+  word-break: break-all;
+}
+.copy-btn {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 10px;
+  padding: 4px 12px;
+  border: 1px solid rgba(0,255,65,0.2);
+  border-radius: 2px;
+  background: transparent;
+  color: #1a8040;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.06em;
+  transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.copy-btn:hover {
+  border-color: #00ff41;
+  color: #00ff41;
+  box-shadow: 0 0 8px rgba(0,255,65,0.2);
+}
+
+footer {
+  margin-top: 4rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(0,255,65,0.1);
+  font-size: 11px;
+  color: #1a6632;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+footer a { color: #1a9948; text-decoration: none; transition: color 0.2s; }
+footer a:hover { color: #00ff41; }
+footer .sep { opacity: 0.3; }
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="container">
+
+  <header>
+    <div class="prompt"><span class="dollar">$</span> whoami</div>
+    <h1>DeuZa</h1>
+    <p class="tagline">
+      Hacktiviste · ancien contributeur FreeBSD · Éducateur à la vie privée · Papa de relays Tor et de proxy Signal<br>
+      <span class="hl">Région Centre, France, Europe</span>
+    </p>
+  </header>
+
+  <section>
+    <div class="sec-label">about</div>
+    <p class="about-text">
+      Ancien Sapeur-Pompier de la BSPP, puis DBA Oracle senior chez Club-Internet / T-Online France (10 ans). Contributeur FreeBSD, USENET old-timer depuis les années 90. Hacktiviste au sens noble du terme : j'opère des relais Tor et un proxy Signal parce que la vie privée n'est pas une option, c'est un droit. Donateur à La Quadrature Du Net, membre Guardian de l'EFF, membre de la Free Software Foundation et depuis peu de la Network Time Foundation et d'autres trucs. Je suis passionné d'astronomie, de tatouages, de chats, plongée technique (-142m), Time Keeper ...
+    </p>
+    <div class="tags">
+      <span class="tag">Tor exit relay</span>
+      <span class="tag">Signal proxy</span>
+      <span class="tag">NTP stratum 1</span>
+      <span class="tag">FreeBSD</span>
+      <span class="tag">Debian</span>
+      <span class="tag">Oracle DBA</span>
+      <span class="tag">plongée technique</span>
+      <span class="tag">chess</span>
+      <span class="tag">célibataire :)</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">organisations soutenues ♥</div>
+    <div class="orgs">
+      <a href="https://reflets.info/" target="_blank" rel="noopener" title="Reflets.info">
+        <img src="https://i.imgur.com/A5Y51UU.png" alt="Reflets.info">
+      </a>
+      <a href="https://dondesang.efs.sante.fr/" target="_blank" rel="noopener" title="Don du sang">
+        <img src="https://i.imgur.com/2qM8DE4.png" alt="Don du sang EFS">
+      </a>
+      <a href="https://www.laquadrature.net/" target="_blank" rel="noopener" title="La Quadrature du Net">
+        <img src="https://i.imgur.com/sYjt6go.png" alt="La Quadrature du Net">
+      </a>
+      <a href="https://www.eff.org/" target="_blank" rel="noopener" title="Electronic Frontier Foundation">
+        <img src="https://www.eff.org/files/2024/12/06/2025-orgmember.png" alt="EFF Member 2025">
+      </a>
+      <a href="https://my.fsf.org/join?referrer=6981362" target="_blank" rel="noopener" title="Free Software Foundation">
+        <img src="https://static.fsf.org/nosvn/associate/crm/6981362.png" alt="FSF Associate Member">
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-label">clé gpg</div>
+    <div class="gpg-block">
+      <div class="name">DeuZa &lt;<a class="email" href="mailto:deuza42@pm.me">deuza42@pm.me</a>&gt;</div>
+      <div class="fp-label">fingerprint</div>
+      <div class="fingerprint">760E 1B07 5183 80A1 1656&nbsp;&nbsp;8B75 7706 90F2 2EBF 4742</div>
+      <button class="copy-btn" onclick="
+        navigator.clipboard.writeText('760E1B07518380A116568B75770690F22EBF4742');
+        this.textContent='copied ✓';
+        setTimeout(()=>this.textContent='copy fingerprint',1800);
+      ">copy fingerprint</button>
+    </div>
+  </section>
+
+  <footer>
+    <span>♥</span>
+    <span>powered by curiosity, caffeine &amp; righteous anger</span>
+    <span class="sep">·</span>
+    <a href="https://deuza.net">deuza.net</a>
+    <span class="sep">·</span>
+    <a href="https://github.com/deuza">github.com/deuza</a>
+  </footer>
+
+</div>
+
+<script>
+(function() {
+  const c = document.getElementById("matrix");
+  const ctx = c.getContext("2d");
+  const chars = "01₿$€¥£₹⚡ΣΩπ∞∂√∫≈≠±×÷<>{}[]#@&%!?abcdefghijklmnopqrstuvwxyz";
+  let cols, drops;
+  function resize() {
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+    cols = Math.floor(c.width / 14);
+    drops = Array(cols).fill(1);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+  setInterval(() => {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fillStyle = "#0f0";
+    ctx.font = "14px monospace";
+    for (let i = 0; i < cols; i++) {
+      const ch = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(ch, i * 14, drops[i] * 14);
+      if (drops[i] * 14 > c.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }, 50);
+})();
+</script>
+
+</body>
+</html>
